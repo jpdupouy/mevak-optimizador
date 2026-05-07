@@ -1,0 +1,39 @@
+name: Optimizador Publicaciones Mevak
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * 1'  # Cada lunes 10AM Chile
+
+jobs:
+  optimizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: |
+          pip install requests anthropic python-dotenv \
+                      google-auth google-auth-httplib2 google-api-python-client
+
+      - name: Correr agente optimizador
+        env:
+          ML_CLIENT_ID: ${{ secrets.ML_CLIENT_ID }}
+          ML_SECRET_KEY: ${{ secrets.ML_SECRET_KEY }}
+          ML_REFRESH_TOKEN: ${{ secrets.ML_REFRESH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: |
+          python optimizar_publicacion.py
+
+      - name: Subir reporte como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-optimizacion
+          path: reporte_optimizacion.txt
