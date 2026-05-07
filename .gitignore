@@ -1,2 +1,3 @@
 credenciales_google.json
-credenciales_google.json
+venv/
+__pycache__/
